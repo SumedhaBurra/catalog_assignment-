@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Polynomial Secret Finder</title>
+    <script>
+        // Function to decode base values
+        function decodeBase(value, base) {
+            return parseInt(value, base);
+        }
+
+        // Function to find the constant term using Lagrange interpolation
+        function lagrangeInterpolation(points, k) {
+            let result = 0;
+
+            for (let i = 0; i < k; i++) {
+                let { x: xi, y: yi } = points[i];
+                let li = 1;
+
+                for (let j = 0; j < k; j++) {
+                    if (i !== j) {
+                        let { x: xj } = points[j];
+                        li *= (0 - xj) / (xi - xj);
+                    }
+                }
+
+                result += yi * li;
+            }
+
+            return Math.round(result);
+        }
+
+        // Function to execute the code
+        function findSecret() {
+            const data = {
+                    "keys": { "n": 10, "k": 7 },
+                    "1": { "base": "6", "value": "13444211440455345511" },
+                    "2": { "base": "15", "value": "aed7015a346d63" },
+                    "3": { "base": "15", "value": "6aeeb69631c227c" },
+                    "4": { "base": "16", "value": "e1b5e05623d881f" },
+                    "5": { "base": "8", "value": "316034514573652620673" },
+                    "6": { "base": "3", "value": "2122212201122002221120200210011020220200" },
+                    "7": { "base": "3", "value": "20120221122211000100210021102001201112121" },
+                    "8": { "base": "6", "value": "20220554335330240002224253" },
+                    "9": { "base": "12", "value": "45153788322a1255483" },
+                    "10": { "base": "7", "value": "1101613130313526312514143" }
+            };
+            
+
+            const { keys, ...points } = data;
+            const n = keys.n;
+            const k = keys.k;
+
+            const decodedPoints = Object.entries(points).map(([x, { base, value }]) => ({
+                x: parseInt(x),
+                y: decodeBase(value, parseInt(base)),
+            }));
+
+            const c = lagrangeInterpolation(decodedPoints, k);
+
+            document.getElementById('result').innerText = 'Secret (c): ' + c;
+        }
+    </script>
+</head>
+<body>
+    <h1>Polynomial Secret Finder</h1>
+    <button onclick="findSecret()">Find Secret</button>
+    <p id="result"></p>
+</body>
+</html>
