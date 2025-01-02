@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Polynomial Secret Finder</title>
+    <script>
+        // Function to decode base values
+        function decodeBase(value, base) {
+            return parseInt(value, base);
+        }
+
+        // Function to find the constant term using Lagrange interpolation
+        function lagrangeInterpolation(points, k) {
+            let result = 0;
+
+            for (let i = 0; i < k; i++) {
+                let { x: xi, y: yi } = points[i];
+                let li = 1;
+
+                for (let j = 0; j < k; j++) {
+                    if (i !== j) {
+                        let { x: xj } = points[j];
+                        li *= (0 - xj) / (xi - xj);
+                    }
+                }
+
+                result += yi * li;
+            }
+
+            return Math.round(result);
+        }
+
+        // Function to execute the code
+        function findSecret() {
+            const data = {
+                "keys": { "n": 4, "k": 3 },
+                "1": { "base": "10", "value": "4" },
+                "2": { "base": "2", "value": "111" },
+                "3": { "base": "10", "value": "12" },
+                "6": { "base": "4", "value": "213" }
+            };
+
+            const { keys, ...points } = data;
+            const n = keys.n;
+            const k = keys.k;
+
+            const decodedPoints = Object.entries(points).map(([x, { base, value }]) => ({
+                x: parseInt(x),
+                y: decodeBase(value, parseInt(base)),
+            }));
+
+            const c = lagrangeInterpolation(decodedPoints, k);
+
+            document.getElementById('result').innerText = 'Secret (c): ' + c;
+        }
+    </script>
+</head>
+<body>
+    <h1>Polynomial Secret Finder</h1>
+    <button onclick="findSecret()">Find Secret</button>
+    <p id="result"></p>
+</body>
+</html>
